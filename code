@@ -66,6 +66,7 @@ for cnt, air in pairRDD_group:
 ## join() joins two pair RDDs based on their key
 RDD1 = sc.parallelize([("Messi", 34), ("Ronaldo", 32), ("Neymar", 24)])
 RDD2 = sc.parallelize([("Ronaldo", 80), ("Neymar", 120), ("Messi", 100)])
+
 RDD1.join(RDD2).collect()
 
 
