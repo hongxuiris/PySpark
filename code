@@ -1,0 +1,71 @@
+## using Spark in Python
+
+# step 1: create connection to the cluster (SparkContext)
+# automatically created, to verify 
+
+print(sc)
+print(sc.version)
+# Python version of sc
+sc.pythonVer
+# master: url of the cluster
+sc.master
+
+## loading data in PySpark
+rdd = sc.parallelize([1,2,3,4,5])
+rdd.take(5)  #.show() doesn't work
+
+numb = range(1, 101) 
+# load the list into PySpark
+spark_data = sc.parallelize(numb)
+helloRDD = sc.parallelize("Hello World")
+type(spark_data)
+
+file_path1 = "hdfs://nameservice1/zone1/user/hxu/My_Data/FAC_dat.txt"
+rdd2 = sc.textFile(file_path1)
+rdd2.take(5)
+rdd2.getNumPartitions()
+rdd2 = sc.textFile(file_path1, minPartitions = 6)
+rdd2.getNumPartitions()
+rdd2.count() #2442
+
+for line in rdd2.take(10):
+	print line
+
+my_list = range(1,21)
+listRDD = sc.parallelize(my_list)
+squaredRDD = listRDD.map(lambda x: x**2)
+filteredRDD = listRDD.filter(lambda x: (x%10 == 0))
+squaredRDD.collect()
+squaredRDD.take(5)
+filteredRDD.collect()
+filteredRDD.count()
+
+### pair RDD transformation
+my_list = ["Sam 23", "Mary 34", "Peter 25"]
+regRdd = sc.parallelize(my_list)
+pairRdd = regRdd.map(lambda s: (s.split(" ")[0], s.split(" ")[1]))
+for s in pairRdd.collect():
+	print("{} is {} years old".format(s[0], s[1]))
+
+pRdd = sc.parallelize([(1,2), (3,4), (3,6), (4,5)])
+rdd_reduced = pRdd.reduceByKey(lambda x, y: x+y)
+for num in rdd_reduced.collect():
+	print("Key {} has {} counts".format(num[0], num[1]))
+
+rdd_reduced_sort = rdd_reduced.sortByKey(ascending = False)
+for num in rdd_reduced_sort.collect():
+	print("Key {} has {} counts".format(num[0], num[1]))
+
+
+airports = [("US", "JFK"), ("UK", "LHR"), ("FR", "CDG"), ("US", "SFO")]
+regularRDD = sc.parallelize(airports)
+pairRDD_group = regularRDD.groupByKey().collect()
+for cnt, air in pairRDD_group:
+	print(cnt, list(air))
+
+## join() joins two pair RDDs based on their key
+RDD1 = sc.parallelize([("Messi", 34), ("Ronaldo", 32), ("Neymar", 24)])
+RDD2 = sc.parallelize([("Ronaldo", 80), ("Neymar", 120), ("Messi", 100)])
+RDD1.join(RDD2).collect()
+
+
